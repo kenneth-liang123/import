@@ -1,0 +1,21 @@
+# Sidekiq configuration file
+# See https://github.com/sidekiq/sidekiq/blob/main/examples/config.yml for more options
+
+:verbose: false
+:concurrency: 10
+
+# Set timeout to 25 on Heroku, longer if you manage your own systems.
+:timeout: 25
+
+# Sidekiq will run this file through ERB when reading it so you can
+# even put in dynamic logic, like a host-specific queue.
+# http://www.mikeperham.com/2013/11/13/advanced-sidekiq-host-specific-queues/
+:queues:
+  - default
+  - mailers
+  - active_storage_analysis
+  - active_storage_purge
+
+# You can also have environment-specific configuration
+production:
+  :concurrency: 20
