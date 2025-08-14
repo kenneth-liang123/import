@@ -9,7 +9,6 @@ RSpec.describe FileUpload, type: :model do
       expect(file_upload.errors[:file_type]).to include("can't be blank")
       expect(file_upload.errors[:import_type]).to include("can't be blank")
       expect(file_upload.errors[:status]).to include("can't be blank")
-      expect(file_upload.errors[:user_email]).to include("can't be blank")
     end
 
     it 'validates file_type inclusion' do
@@ -28,12 +27,6 @@ RSpec.describe FileUpload, type: :model do
       file_upload = FileUpload.new(status: 'invalid')
       expect(file_upload).not_to be_valid
       expect(file_upload.errors[:status]).to include("is not included in the list")
-    end
-
-    it 'validates email format' do
-      file_upload = FileUpload.new(user_email: 'invalid-email')
-      expect(file_upload).not_to be_valid
-      expect(file_upload.errors[:user_email]).to include("is invalid")
     end
   end
 

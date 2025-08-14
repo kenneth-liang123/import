@@ -2,6 +2,12 @@
 
 A modern Rails 8 application that provides a beautiful interface for content creators to upload Excel and CSV files for importing dailies and health pillar data. Features background processing with Sidekiq, comprehensive testing, and a stunning Tailwind CSS interface.
 
+## 🖼️ Application Screenshot
+
+![File Upload Center Interface](https://github.com/user-attachments/assets/4a5b9f91-8b1e-4a1c-9f1b-89d5853da9af)
+
+*Beautiful, modern file upload interface with drag & drop functionality, data type selection, and import options*
+
 ## ✨ Features
 
 - 🎨 **Beautiful UI**: Modern, responsive interface built with Tailwind CSS v4
@@ -23,7 +29,7 @@ A modern Rails 8 application that provides a beautiful interface for content cre
 - **Frontend**: Tailwind CSS v4.1.11
 - **File Processing**: Roo gem for Excel files
 - **Testing**: RSpec 3.13
-- **File Storage**: Active Storage (local disk in development)
+- **File Storage**: Amazon S3 (production) / Local disk (development)
 
 ## 📋 Prerequisites
 
@@ -103,9 +109,65 @@ Create a `.env` file in the root directory:
 ```bash
 # .env
 REDIS_URL=redis://localhost:6379/0
+AWS_REGION=ap-southeast-2
+S3_BUCKET=your-bucket-name
 ```
 
-### 5. Install and Build Assets
+### 5. Amazon S3 Setup (Production)
+
+#### Configure AWS Credentials
+```bash
+# Edit Rails credentials
+bin/rails credentials:edit
+```
+
+Add your AWS credentials:
+```yaml
+aws:
+  access_key_id: your_access_key_id
+  secret_access_key: your_secret_access_key
+```
+
+#### Create S3 Bucket and IAM Policy
+1. **Create S3 Bucket** in AWS Console
+2. **Create IAM User** with programmatic access
+3. **Attach Policy** with these permissions:
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:GetObject",
+        "s3:PutObject",
+        "s3:DeleteObject"
+      ],
+      "Resource": "arn:aws:s3:::your-bucket-name/*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": ["s3:ListBucket"],
+      "Resource": "arn:aws:s3:::your-bucket-name"
+    }
+  ]
+}
+```
+
+#### Test S3 Configuration
+```bash
+# Check S3 setup
+bin/rails s3:config
+
+# Test S3 connection
+bin/rails s3:test
+
+# Get setup help
+bin/rails s3:setup
+```
+
+### 6. Install and Build Assets
 ```bash
 # Tailwind CSS is automatically compiled with bin/dev
 # No separate installation needed
@@ -436,11 +498,55 @@ Sidekiq.configure_client do |config|
 end
 ```
 
+end
+
+### File Storage Configuration
+The application uses different storage backends for different environments:
+
+#### Development & Test
+```ruby
+# Local disk storage
+config.active_storage.service = :local  # development
+config.active_storage.service = :test   # test
+```
+
+#### Production
+```ruby
+# Amazon S3 storage
+config.active_storage.service = :amazon
+```
+
+#### S3 Storage Configuration (`config/storage.yml`)
+```yaml
+amazon:
+  service: S3
+  access_key_id: <%= Rails.application.credentials.dig(:aws, :access_key_id) %>
+  secret_access_key: <%= Rails.application.credentials.dig(:aws, :secret_access_key) %>
+  region: <%= ENV['AWS_REGION'] || 'ap-southeast-2' %>
+  bucket: <%= ENV['S3_BUCKET'] || "unleashh" %>
+  upload:
+    server_side_encryption: AES256
+    cache_control: "max-age=31536000"
+  multipart_threshold: <%= 100.megabytes %>
+  public: false
+```
+
 ### Environment Variables
 Create a `.env` file for local development:
 ```bash
+# Redis (for Sidekiq background jobs)
 REDIS_URL=redis://localhost:6379/0
+
+# Database
 DATABASE_URL=postgresql://username:password@localhost/myapp_development
+
+# AWS S3 Configuration (for production)
+AWS_REGION=ap-southeast-2
+S3_BUCKET=your-bucket-name
+
+# Optional: Use environment variables instead of Rails credentials
+# AWS_ACCESS_KEY_ID=your_access_key_id
+# AWS_SECRET_ACCESS_KEY=your_secret_access_key
 ```
 
 ## 🚨 Troubleshooting

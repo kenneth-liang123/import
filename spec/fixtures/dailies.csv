@@ -1,3 +1,7 @@
-unleash id,daily_name,description,duration_minutes,effort,detailed health benefit,guide,tools
-1,Morning Meditation,Daily meditation practice,15,2,Reduces stress and anxiety,Sit quietly and focus on breathing,Meditation app
-2,Evening Walk,Light exercise,30,3,Improves cardiovascular health,Walk at moderate pace,Comfortable shoes
+date,activity,category,description
+2024-01-01,Morning Meditation,Wellness,15 minutes of mindfulness meditation
+2024-01-01,Workout,Fitness,45 minutes cardio and strength training
+2024-01-01,Read Book,Learning,Read 30 pages of programming book
+2024-01-02,Morning Meditation,Wellness,20 minutes of mindfulness meditation
+2024-01-02,Team Meeting,Work,Daily standup meeting with development team
+2024-01-02,Code Review,Work,Review pull requests from team members
