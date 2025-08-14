@@ -5,9 +5,9 @@ RSpec.describe Importer::Dailies, type: :service do
   let(:importer) { described_class.new(filepath) }
   let(:valid_csv_content) do
     <<~CSV
-      unleash id,name,description,duration,effort,detailed health benefit,guide,tools
-      1,Morning Meditation,Daily meditation practice,15,Low,Reduces stress and anxiety,Sit quietly and focus on breathing,Meditation app
-      2,Evening Walk,Light exercise,30,Medium,Improves cardiovascular health,Walk at moderate pace,Comfortable shoes
+      unleash id,daily_name,description,duration_minutes,effort,detailed health benefit,guide,tools
+      1,Morning Meditation,Daily meditation practice,15,2,Reduces stress and anxiety,Sit quietly and focus on breathing,Meditation app
+      2,Evening Walk,Light exercise,30,3,Improves cardiovascular health,Walk at moderate pace,Comfortable shoes
     CSV
   end
 
@@ -28,9 +28,10 @@ RSpec.describe Importer::Dailies, type: :service do
   describe 'REQUIRED_HEADERS' do
     it 'defines the required headers' do
       expected_headers = [
-        "name",
+        "unleash id",
+        "daily_name",
         "description",
-        "duration",
+        "duration_minutes",
         "effort",
         "detailed health benefit",
         "guide",
@@ -166,9 +167,9 @@ RSpec.describe Importer::Dailies, type: :service do
       # This tests the field extraction logic that would be in the complete implementation
       CSV.foreach(filepath, headers: true) do |row|
         expect(row['unleash id']).to be_present
-        expect(row['name']).to be_present
+        expect(row['daily_name']).to be_present
         expect(row['description']).to be_present
-        expect(row['duration']).to be_present
+        expect(row['duration_minutes']).to be_present
         expect(row['effort']).to be_present
         expect(row['detailed health benefit']).to be_present
         expect(row['guide']).to be_present

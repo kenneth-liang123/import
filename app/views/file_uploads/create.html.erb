@@ -1,0 +1,150 @@
+<div class="max-w-4xl mx-auto">
+  <div class="bg-white rounded-lg shadow-lg p-8">
+    <div class="flex items-center justify-between mb-6">
+      <h1 class="text-3xl font-bold text-gray-900">📊 Upload Details</h1>
+      <%= link_to "← Back to Uploads", file_uploads_path, 
+          class: "bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors" %>
+    </div>
+
+    <!-- Status Banner -->
+    <div class="mb-8 p-6 rounded-lg
+      <%= case @file_upload.status
+          when 'pending' then 'bg-yellow-50 border border-yellow-200'
+          when 'processing' then 'bg-blue-50 border border-blue-200'
+          when 'completed' then 'bg-green-50 border border-green-200'
+          when 'failed' then 'bg-red-50 border border-red-200'
+          end %>">
+      <div class="flex items-center">
+        <div class="flex-shrink-0">
+          <%= case @file_upload.status
+              when 'pending' then '⏳'
+              when 'processing' then '⚙️'
+              when 'completed' then '✅'
+              when 'failed' then '❌'
+              end %>
+        </div>
+        <div class="ml-3">
+          <h3 class="text-lg font-medium 
+            <%= case @file_upload.status
+                when 'pending' then 'text-yellow-800'
+                when 'processing' then 'text-blue-800'
+                when 'completed' then 'text-green-800'
+                when 'failed' then 'text-red-800'
+                end %>">
+            Status: <%= @file_upload.status.humanize %>
+          </h3>
+          <p class="text-sm 
+            <%= case @file_upload.status
+                when 'pending' then 'text-yellow-700'
+                when 'processing' then 'text-blue-700'
+                when 'completed' then 'text-green-700'
+                when 'failed' then 'text-red-700'
+                end %>">
+            <%= case @file_upload.status
+                when 'pending' then 'Your file is queued for processing'
+                when 'processing' then 'Your file is currently being processed'
+                when 'completed' then 'Your file has been successfully processed'
+                when 'failed' then 'There was an error processing your file'
+                end %>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- File Information -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+      <div class="space-y-4">
+        <h3 class="text-lg font-semibold text-gray-900">File Information</h3>
+        
+        <div class="space-y-3">
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Filename</label>
+            <p class="text-sm text-gray-900"><%= @file_upload.filename %></p>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700">File Type</label>
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+              <%= @file_upload.file_type.humanize %>
+            </span>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Import Behavior</label>
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+              <%= @file_upload.import_type == 'import' ? 'bg-green-100 text-green-800' : 'bg-orange-100 text-orange-800' %>">
+              <%= @file_upload.import_type.humanize %>
+            </span>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Uploaded By</label>
+            <p class="text-sm text-gray-900"><%= @file_upload.user_email %></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="space-y-4">
+        <h3 class="text-lg font-semibold text-gray-900">Processing Information</h3>
+        
+        <div class="space-y-3">
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Uploaded At</label>
+            <p class="text-sm text-gray-900"><%= @file_upload.created_at.strftime("%B %d, %Y at %I:%M %p") %></p>
+          </div>
+          
+          <% if @file_upload.job_id %>
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Job ID</label>
+            <p class="text-sm text-gray-900 font-mono"><%= @file_upload.job_id %></p>
+          </div>
+          <% end %>
+          
+          <% if @file_upload.processed_at %>
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Processed At</label>
+            <p class="text-sm text-gray-900"><%= @file_upload.processed_at.strftime("%B %d, %Y at %I:%M %p") %></p>
+          </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Error Message (if failed) -->
+    <% if @file_upload.failed? && @file_upload.error_message.present? %>
+      <div class="mb-8 p-4 bg-red-50 border border-red-200 rounded-lg">
+        <h3 class="text-lg font-medium text-red-800 mb-2">Error Details</h3>
+        <p class="text-sm text-red-700 font-mono bg-red-100 p-3 rounded"><%= @file_upload.error_message %></p>
+      </div>
+    <% end %>
+
+    <!-- Actions -->
+    <div class="flex space-x-4">
+      <% if @file_upload.can_retry? %>
+        <%= link_to "🔄 Retry Processing", retry_file_upload_path(@file_upload), 
+            method: :post,
+            class: "bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600 transition-colors",
+            data: { confirm: "Are you sure you want to retry processing this file?" } %>
+      <% end %>
+      
+      <% if @file_upload.job_id %>
+        <%= link_to "📊 View in Sidekiq", "/sidekiq/jobs/#{@file_upload.job_id}", 
+            target: "_blank",
+            class: "bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors" %>
+      <% end %>
+    </div>
+
+    <!-- Auto-refresh for processing status -->
+    <% if @file_upload.processing? || @file_upload.pending? %>
+      <script>
+        // Auto-refresh page every 5 seconds for pending/processing uploads
+        setTimeout(function() {
+          window.location.reload();
+        }, 5000);
+      </script>
+    <% end %>
+  </div>
+</div>>
+  <h1 class="font-bold text-4xl">FileUploads#create</h1>
+  <p>Find me in app/views/file_uploads/create.html.erb</p>
+</div>

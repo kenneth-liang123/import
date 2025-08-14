@@ -74,11 +74,16 @@ RSpec.describe Importer::BaseImporter, type: :service do
     end
 
     context 'when CSV file does not exist' do
-      let(:filepath) { Rails.root.join('spec', 'fixtures', 'nonexistent.csv') }
-      let(:importer) { described_class.new(filepath) }
+      let(:nonexistent_filepath) { Rails.root.join('spec', 'fixtures', 'definitely_nonexistent.csv') }
+      let(:nonexistent_importer) { described_class.new(nonexistent_filepath) }
+
+      before do
+        # Ensure the file definitely doesn't exist
+        File.delete(nonexistent_filepath) if File.exist?(nonexistent_filepath)
+      end
 
       it 'returns all required headers as missing' do
-        missing = importer.send(:missing_csv_headers, required_headers)
+        missing = nonexistent_importer.send(:missing_csv_headers, required_headers)
         expect(missing).to eq(required_headers) # All headers are "missing" since file doesn't exist
       end
     end

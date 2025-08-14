@@ -23,7 +23,11 @@ module Importer
 
     def csv_headers
       return [] unless File.exist?(filepath)
-      CSV.open(filepath, headers: true, &:first)&.headers || []
+      begin
+        CSV.open(filepath, headers: true, &:first)&.headers || []
+      rescue CSV::MalformedCSVError
+        []
+      end
     end
   end
 end

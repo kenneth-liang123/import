@@ -1,4 +1,13 @@
 Rails.application.routes.draw do
+  # File upload routes
+  resources :file_uploads, only: [:index, :create, :show] do
+    member do
+      post :retry
+      get :status
+    end
+  end
+  
+  get "home/index"
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Sidekiq Web UI (for monitoring background jobs)
@@ -14,5 +23,5 @@ Rails.application.routes.draw do
   # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 
   # Defines the root path route ("/")
-  # root "posts#index"
+  root "home#index"
 end

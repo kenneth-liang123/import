@@ -1,4 +1,3 @@
-unleash id,name,description,duration,effort,detailed health benefit,guide,tools
-1,Morning Meditation,Daily meditation practice to reduce stress,15,Low,Reduces stress and anxiety levels,Sit quietly in a comfortable position and focus on your breathing,Meditation app or timer
-2,Evening Walk,Light cardiovascular exercise,30,Medium,Improves cardiovascular health and mood,Walk at a moderate pace in a safe area,Comfortable walking shoes
-3,Hydration Check,Drinking adequate water throughout the day,5,Low,Maintains proper hydration and supports organ function,Drink a glass of water every 2 hours,Water bottle with measurements
+unleash id,daily_name,description,duration_minutes,effort,detailed health benefit,guide,tools
+1,Morning Meditation,Daily meditation practice,15,2,Reduces stress and anxiety,Sit quietly and focus on breathing,Meditation app
+2,Evening Walk,Light exercise,30,3,Improves cardiovascular health,Walk at moderate pace,Comfortable shoes

@@ -147,10 +147,10 @@ RSpec.describe Importer::DailyHealthPillars, type: :service do
         end
 
         it 'adds to missing_dailies array' do
+          expect(importer).to receive(:print).with('Importing daily 999...')
+          expect(importer).to receive(:puts).with('not found.')
+          expect(importer).to receive(:puts).with(match(/Missing dailies \(1\): 999/))
           importer.send(:import_dailies_health_pillars)
-
-          # The method should print missing dailies
-          expect_any_instance_of(described_class).to have_received(:puts).with(match(/Missing dailies \(1\): 999/))
         end
       end
     end

@@ -3,13 +3,16 @@ module Importer
     require "csv"
 
     def import
-      puts "Processing file..."
-      import_dailies_health_pillars
-    end
+    puts "Processing file..."
+    import_dailies_health_pillars
+  end
 
-    private
+  # Method for Sidekiq job to discover health pillar headers dynamically
+  def discover_health_pillar_headers(headers)
+    headers.select { |header| header.start_with?('health_pillar_') }
+  end
 
-    def import_dailies_health_pillars
+  def import_dailies_health_pillars
       health_pillar_names = HealthPillar.pluck(:name)
       missing_headers = missing_csv_headers(health_pillar_names)
       if missing_headers.present?

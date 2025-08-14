@@ -4,9 +4,9 @@ RSpec.describe 'Importer Integration', type: :integration do
   let(:s3_downloader) { S3FileDownloader.new('test_file.csv', 'test-bucket') }
   let(:csv_content) do
     <<~CSV
-      unleash id,name,description,duration,effort,detailed health benefit,guide,tools
-      1,Morning Exercise,Start the day with movement,20,Medium,Boosts energy and metabolism,Do 10 minutes of stretching followed by light cardio,Exercise mat
-      2,Mindful Eating,Practice conscious eating habits,30,Low,Improves digestion and nutrition awareness,Eat slowly and focus on flavors and textures,Mindfulness app
+      unleash id,daily_name,description,duration_minutes,effort,detailed health benefit,guide,tools
+      1,Morning Exercise,Start the day with movement,20,3,Boosts energy and metabolism,Do 10 minutes of stretching followed by light cardio,Exercise mat
+      2,Mindful Eating,Practice conscious eating habits,30,2,Improves digestion and nutrition awareness,Eat slowly and focus on flavors and textures,Mindfulness app
     CSV
   end
   let(:temp_file_path) { Rails.root.join('tmp', 'test_integration.csv') }
@@ -47,7 +47,9 @@ RSpec.describe 'Importer Integration', type: :integration do
       non_existent_file = Rails.root.join('tmp', 'non_existent.csv')
       importer = Importer::Dailies.new(non_existent_file)
 
-      expect { importer.import }.to raise_error(Errno::ENOENT)
+      expect { importer.import }.not_to raise_error
+      expect(importer.errors).not_to be_empty
+      expect(importer.errors.first).to include("Required headers missing")
     end
   end
 
